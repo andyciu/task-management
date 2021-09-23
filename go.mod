@@ -1,4 +1,4 @@
-module github.com/pc01pc013/TaskManagement
+module github.com/pc01pc013/task-management
 
 go 1.17
 
