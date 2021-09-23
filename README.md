@@ -54,3 +54,29 @@ $ go mod vendor
 $ go build -o bin/task-management -v .
 $ heroku local
 ```
+
+## Table Schema
+Task
+id
+userid
+title
+description
+starttime
+endtime
+priority
+state
+
+Label
+id
+name
+
+TaskLabelMapping
+id
+taskid
+labelid
+
+User
+id
+username
+password
+nickname
