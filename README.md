@@ -56,7 +56,7 @@ $ heroku local
 ```
 
 ## Table Schema
-task
+tasks
 
 id
 user_id
@@ -67,7 +67,7 @@ end_time
 priority
 state
 
-label
+labels
 id
 name
 
@@ -76,28 +76,28 @@ id
 task_id
 label_id
 
-user
+users
 id
 username
 password
 nickname
 
 ```sql
-CREATE TABLE public."user" (
-	id serial NOT NULL,
+CREATE TABLE public.users (
+	id serial4 NOT NULL,
 	username varchar NOT NULL,
 	"password" varchar NULL,
 	nickname varchar NULL,
 	CONSTRAINT user_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public."label" (
+CREATE TABLE public.labels (
 	id serial4 NOT NULL,
 	"name" varchar NOT NULL,
 	CONSTRAINT label_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.task (
+CREATE TABLE public.tasks (
 	id serial4 NOT NULL,
 	user_id int4 NOT NULL,
 	title varchar NOT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE public.task (
 	priority int4 NULL,
 	state int4 NULL,
 	CONSTRAINT task_pk PRIMARY KEY (id),
-	CONSTRAINT task_fk FOREIGN KEY (user_id) REFERENCES public."user"(id)
+	CONSTRAINT task_fk FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
 
 CREATE TABLE public.task_label_mapping (
@@ -115,8 +115,8 @@ CREATE TABLE public.task_label_mapping (
 	task_id int4 NOT NULL,
 	label_id int4 NOT NULL,
 	CONSTRAINT task_label_mapping_pk PRIMARY KEY (id),
-	CONSTRAINT task_label_mapping_fk FOREIGN KEY (task_id) REFERENCES public.task(id),
-	CONSTRAINT task_label_mapping_fk_1 FOREIGN KEY (label_id) REFERENCES public."label"(id)
+	CONSTRAINT task_label_mapping_fk FOREIGN KEY (task_id) REFERENCES public.tasks(id),
+	CONSTRAINT task_label_mapping_fk_1 FOREIGN KEY (label_id) REFERENCES public.labels(id)
 );
 
 ```
