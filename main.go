@@ -81,7 +81,8 @@ func main() {
 		log.Fatalf("Error opening database: %q", err)
 	}
 	gormDB, err := gorm.Open(postgres.New(postgres.Config{
-		Conn: sqlDB,
+		Conn:                 sqlDB,
+		PreferSimpleProtocol: true,
 	}), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error opening database (gorm): %q", err)
