@@ -83,6 +83,9 @@ func main() {
 	gormDB, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Error opening database (gorm): %q", err)
+	}
 
 	router := gin.New()
 	router.Use(gin.Logger())
