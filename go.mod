@@ -1,5 +1,6 @@
 module github.com/pc01pc013/task-management
 
+// +heroku goVersion go1.17
 go 1.17
 
 require (
