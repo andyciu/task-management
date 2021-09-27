@@ -2,14 +2,20 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
+
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
 	_ "github.com/lib/pq"
+	"github.com/pc01pc013/task-management/models"
 )
 
 func repeatHandler(r int) gin.HandlerFunc {
@@ -70,10 +76,13 @@ func main() {
 		repeat = 5
 	}
 
-	// db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
-	// if err != nil {
-	// 	log.Fatalf("Error opening database: %q", err)
-	// }
+	sqlDB, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Error opening database: %q", err)
+	}
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{})
 
 	router := gin.New()
 	router.Use(gin.Logger())
@@ -86,7 +95,27 @@ func main() {
 
 	router.GET("/repeat", repeatHandler(repeat))
 
-	// router.GET("/db", dbFunc(db))
+	router.GET("/db", dbTest(gormDB))
 
 	router.Run(":" + port)
+}
+
+func dbTest(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var user models.User
+		db.First(&user)
+
+		task := models.Task{
+			Title:       "AAAAAAAAAA",
+			Description: user.Nickname,
+			State:       func(i int) *int { return &i }(1),
+			User:        user,
+			Label: []*models.Label{{
+				Name: "Ahoy",
+			}},
+			StartTime: time.Now(),
+			EndTime:   time.Now().AddDate(0, 0, 1),
+		}
+		db.Create(&task)
+	}
 }
