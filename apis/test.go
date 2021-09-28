@@ -1,0 +1,55 @@
+package apis
+
+import (
+	"bytes"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pc01pc013/task-management/models"
+	"gorm.io/gorm"
+)
+
+type TestApi struct {
+	db *gorm.DB
+}
+
+func NewTestApi(dbInstance *gorm.DB) *TestApi {
+	return &TestApi{db: dbInstance}
+}
+
+func (api *TestApi) DbTest(c *gin.Context) {
+	var user models.User
+	api.db.First(&user)
+
+	task := models.Task{
+		Title:       "AAAAAAAAAA",
+		Description: user.Nickname,
+		State:       func(i int) *int { return &i }(1),
+		User:        user,
+		Label: []*models.Label{{
+			Name: "Ahoy",
+		}},
+		StartTime: time.Now(),
+		EndTime:   time.Now().AddDate(0, 0, 1),
+	}
+	api.db.Create(&task)
+	c.JSON(http.StatusOK, task.ID)
+}
+
+func (api *TestApi) Repeat(c *gin.Context) {
+	repeat, err := strconv.Atoi(os.Getenv("REPEAT"))
+	if err != nil {
+		log.Printf("Error converting $REPEAT to an int: %q - Using default\n", err)
+		repeat = 5
+	}
+
+	var buffer bytes.Buffer
+	for i := 0; i < repeat; i++ {
+		buffer.WriteString("Hello from Go!\n")
+	}
+	c.String(http.StatusOK, buffer.String())
+}

@@ -34,3 +34,8 @@ func GetDBInstance() *gorm.DB {
 	}
 	return nil
 }
+
+func Close() error {
+	sqlDB, _ := gormDB.DB()
+	return sqlDB.Close()
+}
