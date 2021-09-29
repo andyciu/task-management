@@ -24,7 +24,7 @@ func (api *LabelsApi) List(c *gin.Context) {
 	api.db.Find(&labels)
 
 	var result []modelsRes.LabelListRes
-	From(&labels).
+	From(labels).
 		Select(func(i interface{}) interface{} {
 			return modelsRes.LabelListRes{
 				ID:   int(i.(entities.Label).ID),
