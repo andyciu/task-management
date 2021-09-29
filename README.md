@@ -120,3 +120,16 @@ CREATE TABLE public.task_label_mapping (
 );
 
 ```
+
+## APIs
+
+/labels
+	/list
+	/create
+	/update
+	/delete
+/tasks
+	/list
+	/create
+	/update
+	/delete

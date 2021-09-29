@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pc01pc013/task-management/models"
+	"github.com/pc01pc013/task-management/database/entities"
 	"gorm.io/gorm"
 )
 
@@ -22,15 +22,15 @@ func NewTestApi(dbInstance *gorm.DB) *TestApi {
 }
 
 func (api *TestApi) DbTest(c *gin.Context) {
-	var user models.User
+	var user entities.User
 	api.db.First(&user)
 
-	task := models.Task{
+	task := entities.Task{
 		Title:       "AAAAAAAAAA",
 		Description: user.Nickname,
 		State:       func(i int) *int { return &i }(1),
 		User:        user,
-		Label: []*models.Label{{
+		Label: []*entities.Label{{
 			Name: "Ahoy",
 		}},
 		StartTime: time.Now(),
