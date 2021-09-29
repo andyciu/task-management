@@ -1,14 +1,14 @@
 package labels
 
 type LabelCreateReq struct {
-	Name string
+	Name string `json:"name" binding:"required"`
 }
 
 type LabelUpdateReq struct {
-	ID   int
-	Name string
+	ID   int    `json:"id" binding:"required"`
+	Name string `json:"name" binding:"required"`
 }
 
 type LabelDeleteReq struct {
-	ID int
+	ID int `json:"id" binding:"required"`
 }

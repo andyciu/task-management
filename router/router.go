@@ -14,7 +14,8 @@ func InitRouter() *gin.Engine {
 
 	dbInstance := database.GetDBInstance()
 
-	testapi := apis.NewTestApi(dbInstance)
+	testApi := apis.NewTestApi(dbInstance)
+	labelsApi := apis.NewLabelsApi(dbInstance)
 
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
@@ -23,9 +24,17 @@ func InitRouter() *gin.Engine {
 		c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	})
 
-	router.GET("/db", testapi.DbTest)
+	router.GET("/db", testApi.DbTest)
 
-	router.GET("/repeat", testapi.Repeat)
+	router.GET("/repeat", testApi.Repeat)
+
+	apis := router.Group("/apis")
+	{
+		labelsRoute := apis.Group("/labels")
+		{
+			labelsRoute.GET("/list", labelsApi.List)
+		}
+	}
 
 	return router
 }
