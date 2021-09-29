@@ -4,6 +4,7 @@ module github.com/pc01pc013/task-management
 go 1.17
 
 require (
+	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/gin-gonic/gin v0.0.0-20150626140855-4cc2de6207f4
 	github.com/heroku/x v0.0.0-20171004170240-705849e307dd
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
