@@ -1,12 +1,13 @@
 package apis
 
 import (
+	"log"
 	"net/http"
 
 	. "github.com/ahmetb/go-linq/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/pc01pc013/task-management/database/entities"
-	modelsRes "github.com/pc01pc013/task-management/models/labels"
+	"github.com/pc01pc013/task-management/models/labels"
 	"github.com/pc01pc013/task-management/utils"
 	"gorm.io/gorm"
 )
@@ -20,13 +21,13 @@ func NewLabelsApi(dbInstance *gorm.DB) *LabelsApi {
 }
 
 func (api *LabelsApi) List(c *gin.Context) {
-	var labels []entities.Label
-	api.db.Find(&labels)
+	var labelEntities []entities.Label
+	api.db.Find(&labelEntities)
 
-	var result []modelsRes.LabelListRes
-	From(labels).
+	var result []labels.LabelListRes
+	From(labelEntities).
 		Select(func(i interface{}) interface{} {
-			return modelsRes.LabelListRes{
+			return labels.LabelListRes{
 				ID:   int(i.(entities.Label).ID),
 				Name: i.(entities.Label).Name,
 			}
@@ -34,5 +35,23 @@ func (api *LabelsApi) List(c *gin.Context) {
 
 	context := utils.MakeResponseResultSuccess(result)
 
+	c.JSON(http.StatusOK, context)
+}
+
+func (api *LabelsApi) Create(c *gin.Context) {
+	var req labels.LabelCreateReq
+
+	if err := c.BindJSON(&req); err != nil {
+		log.Printf("BindJSON Error: %q", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	newlabel := entities.Label{
+		Name: req.Name,
+	}
+	api.db.Create(&newlabel)
+
+	context := utils.MakeResponseResultSuccess(newlabel.ID)
 	c.JSON(http.StatusOK, context)
 }

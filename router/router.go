@@ -33,6 +33,7 @@ func InitRouter() *gin.Engine {
 		labelsRoute := apis.Group("/labels")
 		{
 			labelsRoute.GET("/list", labelsApi.List)
+			labelsRoute.POST("/create", labelsApi.Create)
 		}
 	}
 
