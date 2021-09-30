@@ -34,6 +34,7 @@ func InitRouter() *gin.Engine {
 		{
 			labelsRoute.GET("/list", labelsApi.List)
 			labelsRoute.POST("/create", labelsApi.Create)
+			labelsRoute.POST("/update", labelsApi.Update)
 		}
 	}
 

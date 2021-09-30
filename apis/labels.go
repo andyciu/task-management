@@ -50,8 +50,43 @@ func (api *LabelsApi) Create(c *gin.Context) {
 	newlabel := entities.Label{
 		Name: req.Name,
 	}
-	api.db.Create(&newlabel)
+	if result := api.db.Create(&newlabel); result.Error != nil {
+		log.Printf("Create Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	context := utils.MakeResponseResultSuccess(newlabel.ID)
+	c.JSON(http.StatusOK, context)
+}
+
+func (api *LabelsApi) Update(c *gin.Context) {
+	var req labels.LabelUpdateReq
+
+	if err := c.BindJSON(&req); err != nil {
+		log.Printf("BindJSON Error: %q", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var labelEntities entities.Label
+	reqID, _ := req.ID.Int64()
+	if result := api.db.First(&labelEntities, reqID); result.Error != nil {
+		log.Printf("Find Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if labelEntities.Name != req.Name {
+		labelEntities.Name = req.Name
+	}
+
+	if result := api.db.Save(&labelEntities); result.Error != nil {
+		log.Printf("Save Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	context := utils.MakeResponseResultSuccess(nil)
 	c.JSON(http.StatusOK, context)
 }
