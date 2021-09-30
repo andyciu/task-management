@@ -16,6 +16,7 @@ func InitRouter() *gin.Engine {
 
 	testApi := apis.NewTestApi(dbInstance)
 	labelsApi := apis.NewLabelsApi(dbInstance)
+	tasksApi := apis.NewTasksApi(dbInstance)
 
 	router.LoadHTMLGlob("templates/*.tmpl.html")
 	router.Static("/static", "static")
@@ -36,6 +37,10 @@ func InitRouter() *gin.Engine {
 			labelsRoute.POST("/create", labelsApi.Create)
 			labelsRoute.POST("/update", labelsApi.Update)
 			labelsRoute.DELETE("/deleteL", labelsApi.Delete)
+		}
+		tasksRoute := apis.Group("/tasks")
+		{
+			tasksRoute.GET("/list", tasksApi.List)
 		}
 	}
 
