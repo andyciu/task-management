@@ -10,6 +10,7 @@ import (
 	"github.com/pc01pc013/task-management/models/tasks"
 	"github.com/pc01pc013/task-management/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type TasksApi struct {
@@ -80,5 +81,53 @@ func (api *TasksApi) Create(c *gin.Context) {
 	}
 
 	context := utils.MakeResponseResultSuccess(newtask.ID)
+	c.JSON(http.StatusOK, context)
+}
+
+func (api *TasksApi) Update(c *gin.Context) {
+	var req tasks.TaskUpdateReq
+
+	if err := c.BindJSON(&req); err != nil {
+		log.Printf("BindJSON Error: %q", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var taskEntities entities.Task
+	reqID, _ := req.ID.Int64()
+	if result := api.db.First(&taskEntities, reqID); result.Error != nil {
+		log.Printf("Find Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	taskEntities.Title = req.Title
+	taskEntities.Description = req.Description
+	taskEntities.StartTime = req.StartTime
+	taskEntities.EndTime = req.EndTime
+	taskEntities.Priority = utils.JsonNumberPointToIntPoint(req.Priority)
+	taskEntities.State = utils.JsonNumberPointToIntPoint(req.State)
+
+	var tasklabels []*entities.Label
+	isUpdateLabels := len(req.Labels) > 0
+
+	if isUpdateLabels {
+		api.db.Find(&tasklabels, req.Labels)
+	}
+
+	taskEntities.Label = tasklabels
+
+	if err := api.db.Transaction(func(tx *gorm.DB) error {
+		tx.Model(&taskEntities).Association("Label").Replace(tasklabels)
+		api.db.Omit(clause.Associations).Save(&taskEntities)
+
+		return nil
+	}); err != nil {
+		log.Printf("Transaction Error: %q", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	context := utils.MakeResponseResultSuccess(nil)
 	c.JSON(http.StatusOK, context)
 }

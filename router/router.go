@@ -42,6 +42,7 @@ func InitRouter() *gin.Engine {
 		{
 			tasksRoute.GET("/list", tasksApi.List)
 			tasksRoute.POST("/create", tasksApi.Create)
+			tasksRoute.POST("/update", tasksApi.Update)
 		}
 	}
 
