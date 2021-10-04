@@ -13,8 +13,8 @@ type Task struct {
 	UserID      uint
 	Title       string
 	Description *string
-	StartTime   time.Time
-	EndTime     time.Time
+	StartTime   *time.Time
+	EndTime     *time.Time
 	Priority    *int
 	State       *int
 	User        User

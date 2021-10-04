@@ -33,8 +33,8 @@ func (api *TestApi) DbTest(c *gin.Context) {
 		Label: []*entities.Label{{
 			Name: "Ahoy",
 		}},
-		StartTime: time.Now(),
-		EndTime:   time.Now().AddDate(0, 0, 1),
+		StartTime: func(i time.Time) *time.Time { return &i }(time.Now()),
+		EndTime:   func(i time.Time) *time.Time { return &i }(time.Now().AddDate(0, 0, 1)),
 	}
 	api.db.Create(&task)
 	c.JSON(http.StatusOK, task.ID)
