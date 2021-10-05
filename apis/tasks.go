@@ -131,3 +131,30 @@ func (api *TasksApi) Update(c *gin.Context) {
 	context := utils.MakeResponseResultSuccess(nil)
 	c.JSON(http.StatusOK, context)
 }
+
+func (api *TasksApi) Delete(c *gin.Context) {
+	var req tasks.TaskDeleteReq
+
+	if err := c.BindJSON(&req); err != nil {
+		log.Printf("BindJSON Error: %q", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	var taskEntities entities.Task
+	reqID, _ := req.ID.Int64()
+	if result := api.db.First(&taskEntities, reqID); result.Error != nil {
+		log.Printf("Find Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if result := api.db.Select(clause.Associations).Delete(&taskEntities); result.Error != nil {
+		log.Printf("Delete Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	context := utils.MakeResponseResultSuccess(nil)
+	c.JSON(http.StatusOK, context)
+}
