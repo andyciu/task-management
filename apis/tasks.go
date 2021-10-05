@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -22,8 +23,50 @@ func NewTasksApi(dbInstance *gorm.DB) *TasksApi {
 }
 
 func (api *TasksApi) List(c *gin.Context) {
+	var req tasks.TaskListReq
+
+	if err := c.BindJSON(&req); err != nil {
+		log.Printf("BindJSON Error: %q", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	var taskEntities []entities.Task
-	api.db.Preload("Label").Find(&taskEntities)
+	tx := api.db
+
+	if req.Title != nil {
+		tx = tx.Where("title LIKE ?", utils.QueryCondLikeString(*req.Title))
+	}
+	if req.Description != nil {
+		tx = tx.Where("description LIKE ?", utils.QueryCondLikeString(*req.Description))
+	}
+	if len(req.Labels) > 0 {
+		var labelEntities []entities.Label
+		From(req.Labels).Select(func(i interface{}) interface{} {
+			k, _ := i.(json.Number).Int64()
+			return entities.Label{
+				ID: uint(k),
+			}
+		}).ToSlice(&labelEntities)
+
+		//select tasks.id
+		type APITask struct {
+			ID uint
+		}
+		var tasknumApi []APITask
+		api.db.Model(labelEntities).Association("Task").Find(&tasknumApi)
+
+		var tasknumInt []uint
+		From(tasknumApi).Select(func(i interface{}) interface{} { return i.(APITask).ID }).ToSlice(&tasknumInt)
+
+		tx = tx.Where("id IN (?)", tasknumInt)
+	}
+
+	if result := tx.Preload("Label").Find(&taskEntities); result.Error != nil {
+		log.Printf("Find Error: %q", result.Error)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	var result []tasks.TaskListRes
 	From(taskEntities).

@@ -33,3 +33,7 @@ func JsonNumberPointToIntPoint(jnum *json.Number) *int {
 
 	return &result
 }
+
+func QueryCondLikeString(str string) string {
+	return "%" + str + "%"
+}
