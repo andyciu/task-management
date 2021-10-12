@@ -3,14 +3,17 @@ package router
 import (
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/pc01pc013/task-management/apis"
+	"github.com/pc01pc013/task-management/auth"
 	"github.com/pc01pc013/task-management/database"
 )
 
 func InitRouter() *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
+	router.Use(cors.New(auth.CorsConfig()))
 
 	dbInstance := database.GetDBInstance()
 
