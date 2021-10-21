@@ -1,9 +1,9 @@
 package apis
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	. "github.com/ahmetb/go-linq/v3"
 	"github.com/gin-gonic/gin"
@@ -23,27 +23,23 @@ func NewTasksApi(dbInstance *gorm.DB) *TasksApi {
 }
 
 func (api *TasksApi) List(c *gin.Context) {
-	var req tasks.TaskListReq
-
-	if err := c.BindJSON(&req); err != nil {
-		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
+	reqTitle := c.Query("title")
+	reqDescription := c.Query("description")
+	reqLabels := c.QueryArray("labels") //list?labels=1&labels=2
 
 	var taskEntities []entities.Task
 	tx := api.db
 
-	if req.Title != nil {
-		tx = tx.Where("title LIKE ?", utils.QueryCondLikeString(*req.Title))
+	if len(reqTitle) > 0 {
+		tx = tx.Where("title LIKE ?", utils.QueryCondLikeString(reqTitle))
 	}
-	if req.Description != nil {
-		tx = tx.Where("description LIKE ?", utils.QueryCondLikeString(*req.Description))
+	if len(reqDescription) > 0 {
+		tx = tx.Where("description LIKE ?", utils.QueryCondLikeString(reqDescription))
 	}
-	if len(req.Labels) > 0 {
+	if len(reqLabels) > 0 {
 		var labelEntities []entities.Label
-		From(req.Labels).Select(func(i interface{}) interface{} {
-			k, _ := i.(json.Number).Int64()
+		From(reqLabels).Select(func(i interface{}) interface{} {
+			k, _ := strconv.Atoi(i.(string))
 			return entities.Label{
 				ID: uint(k),
 			}
@@ -64,7 +60,8 @@ func (api *TasksApi) List(c *gin.Context) {
 
 	if result := tx.Preload("Label").Find(&taskEntities); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -86,6 +83,10 @@ func (api *TasksApi) List(c *gin.Context) {
 			}
 		}).ToSlice(&result)
 
+	if result == nil {
+		result = make([]tasks.TaskListRes, 0)
+	}
+
 	context := utils.MakeResponseResultSuccess(result)
 
 	c.JSON(http.StatusOK, context)
@@ -96,7 +97,8 @@ func (api *TasksApi) Create(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -109,8 +111,8 @@ func (api *TasksApi) Create(c *gin.Context) {
 	newtask := entities.Task{
 		Title:       req.Title,
 		Description: req.Description,
-		StartTime:   req.StartTime,
-		EndTime:     req.EndTime,
+		StartTime:   utils.DateTimePrase(req.StartTime),
+		EndTime:     utils.DateTimePrase(req.EndTime),
 		Priority:    utils.JsonNumberPointToIntPoint(req.Priority),
 		State:       utils.JsonNumberPointToIntPoint(req.State),
 		Label:       tasklabels,
@@ -119,7 +121,8 @@ func (api *TasksApi) Create(c *gin.Context) {
 
 	if result := api.db.Create(&newtask); result.Error != nil {
 		log.Printf("Create Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -132,7 +135,8 @@ func (api *TasksApi) Update(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -140,7 +144,8 @@ func (api *TasksApi) Update(c *gin.Context) {
 	reqID, _ := req.ID.Int64()
 	if result := api.db.First(&taskEntities, reqID); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -167,7 +172,8 @@ func (api *TasksApi) Update(c *gin.Context) {
 		return nil
 	}); err != nil {
 		log.Printf("Transaction Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -180,7 +186,8 @@ func (api *TasksApi) Delete(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -188,13 +195,15 @@ func (api *TasksApi) Delete(c *gin.Context) {
 	reqID, _ := req.ID.Int64()
 	if result := api.db.First(&taskEntities, reqID); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
 	if result := api.db.Select(clause.Associations).Delete(&taskEntities); result.Error != nil {
 		log.Printf("Delete Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 

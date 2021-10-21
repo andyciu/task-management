@@ -33,6 +33,10 @@ func (api *LabelsApi) List(c *gin.Context) {
 			}
 		}).ToSlice(&result)
 
+	if result == nil {
+		result = make([]labels.LabelListRes, 0)
+	}
+
 	context := utils.MakeResponseResultSuccess(result)
 
 	c.JSON(http.StatusOK, context)
@@ -43,7 +47,8 @@ func (api *LabelsApi) Create(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -52,7 +57,8 @@ func (api *LabelsApi) Create(c *gin.Context) {
 	}
 	if result := api.db.Create(&newlabel); result.Error != nil {
 		log.Printf("Create Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -65,7 +71,8 @@ func (api *LabelsApi) Update(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -73,7 +80,8 @@ func (api *LabelsApi) Update(c *gin.Context) {
 	reqID, _ := req.ID.Int64()
 	if result := api.db.First(&labelEntities, reqID); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -83,7 +91,8 @@ func (api *LabelsApi) Update(c *gin.Context) {
 
 	if result := api.db.Save(&labelEntities); result.Error != nil {
 		log.Printf("Save Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -96,7 +105,8 @@ func (api *LabelsApi) Delete(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
@@ -104,13 +114,15 @@ func (api *LabelsApi) Delete(c *gin.Context) {
 	reqID, _ := req.ID.Int64()
 	if result := api.db.First(&labelEntities, reqID); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 
 	if result := api.db.Delete(&labelEntities); result.Error != nil {
 		log.Printf("Delete Error: %q", result.Error)
-		c.AbortWithStatus(http.StatusInternalServerError)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
 		return
 	}
 

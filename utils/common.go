@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/pc01pc013/task-management/enums/response"
 	"github.com/pc01pc013/task-management/models"
@@ -23,6 +24,14 @@ func MakeResponseResult(code response.CommonResCode, message string, content int
 	}
 }
 
+func MakeResponseResultFailed(message string) models.CommonRes {
+	return models.CommonRes{
+		Code:    string(response.Failure),
+		Message: message,
+		Content: nil,
+	}
+}
+
 func JsonNumberPointToIntPoint(jnum *json.Number) *int {
 	if jnum == nil {
 		return nil
@@ -36,4 +45,13 @@ func JsonNumberPointToIntPoint(jnum *json.Number) *int {
 
 func QueryCondLikeString(str string) string {
 	return "%" + str + "%"
+}
+
+func DateTimePrase(value *time.Time) *time.Time {
+	if value != nil {
+		newtime, _ := time.Parse("2006/01/02", value.Format("2006/01/02"))
+		return &newtime
+	} else {
+		return nil
+	}
 }

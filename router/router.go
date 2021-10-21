@@ -39,14 +39,14 @@ func InitRouter() *gin.Engine {
 			labelsRoute.GET("/list", labelsApi.List)
 			labelsRoute.POST("/create", labelsApi.Create)
 			labelsRoute.POST("/update", labelsApi.Update)
-			labelsRoute.DELETE("/deleteL", labelsApi.Delete)
+			labelsRoute.POST("/deleteL", labelsApi.Delete)
 		}
 		tasksRoute := apis.Group("/tasks")
 		{
 			tasksRoute.GET("/list", tasksApi.List)
 			tasksRoute.POST("/create", tasksApi.Create)
 			tasksRoute.POST("/update", tasksApi.Update)
-			tasksRoute.DELETE("/deleteL", tasksApi.Delete)
+			tasksRoute.POST("/deleteL", tasksApi.Delete)
 		}
 	}
 
