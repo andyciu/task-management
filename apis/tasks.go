@@ -68,8 +68,8 @@ func (api *TasksApi) List(c *gin.Context) {
 	var result []tasks.TaskListRes
 	From(taskEntities).
 		SelectT(func(i entities.Task) tasks.TaskListRes {
-			var labelstr []string
-			From(i.Label).Select(func(i interface{}) interface{} { return i.(*entities.Label).Name }).ToSlice(&labelstr)
+			var labelsnum []int
+			From(i.Label).Select(func(i interface{}) interface{} { return int(i.(*entities.Label).ID) }).ToSlice(&labelsnum)
 
 			return tasks.TaskListRes{
 				ID:          int(i.ID),
@@ -79,7 +79,7 @@ func (api *TasksApi) List(c *gin.Context) {
 				EndTime:     i.EndTime,
 				Priority:    i.Priority,
 				State:       i.State,
-				Labels:      labelstr,
+				Labels:      labelsnum,
 			}
 		}).ToSlice(&result)
 
@@ -166,7 +166,10 @@ func (api *TasksApi) Update(c *gin.Context) {
 	taskEntities.Label = tasklabels
 
 	if err := api.db.Transaction(func(tx *gorm.DB) error {
-		tx.Model(&taskEntities).Association("Label").Replace(tasklabels)
+		tx.Model(&taskEntities).Association("Label").Clear()
+		if isUpdateLabels {
+			tx.Model(&taskEntities).Association("Label").Append(tasklabels)
+		}
 		api.db.Omit(clause.Associations).Save(&taskEntities)
 
 		return nil

@@ -12,5 +12,5 @@ type TaskListRes struct {
 	EndTime     *time.Time `json:"end_time"`
 	Priority    *int       `json:"priority"`
 	State       *int       `json:"state"`
-	Labels      []string   `json:"labels"`
+	Labels      []int      `json:"labels"`
 }
