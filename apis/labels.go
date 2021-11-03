@@ -52,6 +52,15 @@ func (api *LabelsApi) Create(c *gin.Context) {
 		return
 	}
 
+	if mode := c.GetString("sysmode"); mode == "nil" {
+		var count int64
+		if api.db.Model(&entities.Label{}).Count(&count); count > 100 {
+			context := utils.MakeResponseResultFailed("")
+			c.JSON(http.StatusOK, context)
+			return
+		}
+	}
+
 	newlabel := entities.Label{
 		Name: req.Name,
 	}

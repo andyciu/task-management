@@ -102,6 +102,15 @@ func (api *TasksApi) Create(c *gin.Context) {
 		return
 	}
 
+	if mode := c.GetString("sysmode"); mode == "nil" {
+		var count int64
+		if api.db.Model(&entities.Task{}).Count(&count); count > 100 {
+			context := utils.MakeResponseResultFailed("")
+			c.JSON(http.StatusOK, context)
+			return
+		}
+	}
+
 	var tasklabels []*entities.Label
 
 	if len(req.Labels) > 0 {
