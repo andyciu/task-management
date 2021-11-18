@@ -7,6 +7,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var gormDB *gorm.DB
@@ -16,10 +17,17 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error opening database: %q", err)
 	}
+
+	mode := os.Getenv("MODE")
+	gormConfig := &gorm.Config{}
+	if mode == "Test" {
+		gormConfig.Logger = logger.Default.LogMode(logger.Info)
+	}
+
 	gormDB, err = gorm.Open(postgres.New(postgres.Config{
 		Conn:                 sqlDB,
 		PreferSimpleProtocol: true,
-	}), &gorm.Config{})
+	}), gormConfig)
 
 	if err != nil {
 		log.Fatalf("Error opening database (gorm): %q", err)
