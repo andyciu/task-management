@@ -1,53 +1,8 @@
 
-# go-getting-started
+# Task Management (Backend)
+Base On https://github.com/heroku/go-getting-started.git
 
-A barebones Go app, which can easily be deployed to Heroku.
-
-This application supports the [Getting Started with Go on Heroku](https://devcenter.heroku.com/articles/getting-started-with-go) article - check it out.
-
-## Running Locally
-
-Make sure you have [Go](http://golang.org/doc/install) version 1.12 or newer and the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed.
-
-```sh
-$ git clone https://github.com/heroku/go-getting-started.git
-$ cd go-getting-started
-$ go build -o bin/go-getting-started -v . # or `go build -o bin/go-getting-started.exe -v .` in git bash
-github.com/mattn/go-colorable
-gopkg.in/bluesuncorp/validator.v5
-golang.org/x/net/context
-github.com/heroku/x/hmetrics
-github.com/gin-gonic/gin/render
-github.com/manucorporat/sse
-github.com/heroku/x/hmetrics/onload
-github.com/gin-gonic/gin/binding
-github.com/gin-gonic/gin
-github.com/heroku/go-getting-started
-$ heroku local
-```
-
-Your app should now be running on [localhost:5000](http://localhost:5000/).
-
-## Deploying to Heroku
-
-```sh
-$ heroku create
-$ git push heroku main
-$ heroku open
-```
-
-or
-
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
-
-## Documentation
-
-For more information about using Go on Heroku, see these Dev Center articles:
-
-- [Go on Heroku](https://devcenter.heroku.com/categories/go)
-
-## TaskManagement
+## Build and Run On Local
 ```sh
 $ go mod tidy
 $ go mod vendor
@@ -56,32 +11,6 @@ $ heroku local
 ```
 
 ## Table Schema
-tasks
-
-id
-user_id
-title
-description
-start_time
-end_time
-priority
-state
-
-labels
-id
-name
-
-task_label_mapping
-id
-task_id
-label_id
-
-users
-id
-username
-password
-nickname
-
 ```sql
 CREATE TABLE public.users (
 	id serial4 NOT NULL,
@@ -123,13 +52,14 @@ CREATE TABLE public.task_label_mapping (
 
 ## APIs
 
-/labels
-	/list
-	/create
-	/update
-	/delete
-/tasks
-	/list
-	/create
-	/update
-	/delete
+
+|||
+|--|--|
+|/labels|/list|
+||/create|
+||/update|
+||/delete|
+|/tasks|/list|
+||/create|
+||/update|
+||/delete|
