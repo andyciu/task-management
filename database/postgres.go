@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/pc01pc013/task-management/database/entities"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -32,6 +33,8 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error opening database (gorm): %q", err)
 	}
+
+	gormDB.AutoMigrate(&entities.User{}, &entities.Label{}, &entities.Task{})
 }
 
 func GetDBInstance() *gorm.DB {

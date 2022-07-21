@@ -7,6 +7,7 @@ require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.5.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/heroku/x v0.0.0-20171004170240-705849e307dd
 	github.com/lib/pq v1.10.3
 	gorm.io/driver/postgres v1.1.1

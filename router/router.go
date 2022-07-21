@@ -18,17 +18,24 @@ func InitRouter() *gin.Engine {
 
 	labelsApi := apis.NewLabelsApi(dbInstance)
 	tasksApi := apis.NewTasksApi(dbInstance)
+	authApi := apis.NewAuthApi(dbInstance)
 
-	apis := router.Group("/apis")
+	authGroup := router.Group("/auth")
 	{
-		labelsRoute := apis.Group("/labels")
+		authGroup.POST("/login", authApi.Login)
+	}
+
+	apisGroup := router.Group("/apis")
+	apisGroup.Use(auth.JWTAuthMiddleware())
+	{
+		labelsRoute := apisGroup.Group("/labels")
 		{
 			labelsRoute.GET("/list", labelsApi.List)
 			labelsRoute.POST("/create", labelsApi.Create)
 			labelsRoute.POST("/update", labelsApi.Update)
 			labelsRoute.POST("/deleteL", labelsApi.Delete)
 		}
-		tasksRoute := apis.Group("/tasks")
+		tasksRoute := apisGroup.Group("/tasks")
 		{
 			tasksRoute.GET("/list", tasksApi.List)
 			tasksRoute.POST("/create", tasksApi.Create)
