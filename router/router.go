@@ -19,6 +19,7 @@ func InitRouter() *gin.Engine {
 	labelsApi := apis.NewLabelsApi(dbInstance)
 	tasksApi := apis.NewTasksApi(dbInstance)
 	authApi := apis.NewAuthApi(dbInstance)
+	userApi := apis.NewUserApi(dbInstance)
 
 	authGroup := router.Group("/auth")
 	{
@@ -41,6 +42,10 @@ func InitRouter() *gin.Engine {
 			tasksRoute.POST("/create", tasksApi.Create)
 			tasksRoute.POST("/update", tasksApi.Update)
 			tasksRoute.POST("/deleteL", tasksApi.Delete)
+		}
+		userRoute := apisGroup.Group("/user")
+		{
+			userRoute.GET("getNickName", userApi.GetNickName)
 		}
 	}
 
