@@ -29,3 +29,4 @@ $ heroku local
 ||/update|
 ||/delete|
 |/auth|/login|
+|/user|/getNickName|
