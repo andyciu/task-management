@@ -1,8 +1,10 @@
 package apis
 
 import (
+	"encoding/base64"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +12,7 @@ import (
 	"github.com/pc01pc013/task-management/database/entities"
 	modelsAuth "github.com/pc01pc013/task-management/models/auth"
 	"github.com/pc01pc013/task-management/utils"
+	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 )
 
@@ -34,14 +37,22 @@ func (api *AuthApi) Login(c *gin.Context) {
 	var userEntities entities.User
 	if result := api.db.Where("Username = ?", req.Username).First(&userEntities); result.Error != nil {
 		log.Printf("Login Error: %q", result.Error)
-		context := utils.MakeResponseResultFailed("Login Failed. 1")
+		context := utils.MakeResponseResultFailed("Login Failed.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
 
-	if strings.Compare(*userEntities.Password, *req.Password) != 0 {
+	dk, err := scrypt.Key([]byte(*req.Password), []byte(os.Getenv("PASSWORDSALT")), 32768, 8, 1, 32)
+	if err != nil {
+		log.Printf("Login Error: %q", err)
+		context := utils.MakeResponseResultFailed("Login Failed.")
+		c.JSON(http.StatusOK, context)
+		return
+	}
+	if strings.Compare(*userEntities.Password, base64.StdEncoding.EncodeToString(dk)) != 0 {
 		log.Printf("Login Error: Password not equal.")
-		context := utils.MakeResponseResultFailed("Login Failed. 2")
+		log.Printf(base64.StdEncoding.EncodeToString(dk))
+		context := utils.MakeResponseResultFailed("Login Failed.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
