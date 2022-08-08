@@ -2,10 +2,14 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/pc01pc013/task-management/database/entities"
 	"github.com/pc01pc013/task-management/enums/response"
 	"github.com/pc01pc013/task-management/models"
+	"gorm.io/gorm"
 )
 
 func MakeResponseResultSuccess(content interface{}) models.CommonRes {
@@ -54,4 +58,18 @@ func DateTimePrase(value *time.Time) *time.Time {
 	} else {
 		return nil
 	}
+}
+
+func GetUserID(c *gin.Context, dbInstance *gorm.DB) (uint, error) {
+	username, _ := c.Get("username")
+	authtype, _ := c.Get("authtype")
+	if username == nil || authtype == nil {
+		return 0, fmt.Errorf("gin.Context find error")
+	}
+	var userEntities entities.User
+	if result := dbInstance.Where("Username = ? AND auth_type = ?", username, authtype).Select("ID").First(&userEntities); result.Error != nil {
+		return 0, result.Error
+	}
+
+	return userEntities.ID, nil
 }

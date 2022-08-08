@@ -14,6 +14,7 @@ import (
 
 type JWTCustomClaims struct {
 	Username string `json:"username"`
+	AuthType uint   `json:"authtype"`
 	jwt.StandardClaims
 }
 
@@ -37,6 +38,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		if claims, ok := token.Claims.(*JWTCustomClaims); ok && token.Valid {
 			log.Printf("%v %v", claims.Username, claims.StandardClaims.ExpiresAt)
 			c.Set("username", claims.Username)
+			c.Set("authtype", claims.AuthType)
 			c.Next()
 		} else {
 			log.Printf("ParseToken Error: %q", err)
@@ -46,12 +48,13 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func NewToken(username string) (string, error) {
+func NewToken(username string, authtype uint) (string, error) {
 	claims := JWTCustomClaims{
 		username,
+		authtype,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 1).Unix(),
-			Issuer:    "test",
+			Issuer:    "AndyCiu",
 		},
 	}
 

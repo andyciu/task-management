@@ -34,7 +34,7 @@ func init() {
 		log.Fatalf("Error opening database (gorm): %q", err)
 	}
 
-	gormDB.AutoMigrate(&entities.User{}, &entities.Label{}, &entities.Task{})
+	gormDB.AutoMigrate(&entities.User{}, &entities.Label{}, &entities.Task{}, &entities.Userinfo_Google{})
 }
 
 func GetDBInstance() *gorm.DB {

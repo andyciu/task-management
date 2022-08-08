@@ -23,6 +23,14 @@ func NewTasksApi(dbInstance *gorm.DB) *TasksApi {
 }
 
 func (api *TasksApi) List(c *gin.Context) {
+	userid, err := utils.GetUserID(c, api.db)
+	if err != nil {
+		log.Printf("Find user Error: %q", err)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
+		return
+	}
+
 	reqTitle := c.Query("title")
 	reqDescription := c.Query("description")
 	reqLabels := c.QueryArray("labels") //list?labels=1&labels=2
@@ -41,7 +49,9 @@ func (api *TasksApi) List(c *gin.Context) {
 		From(reqLabels).Select(func(i interface{}) interface{} {
 			k, _ := strconv.Atoi(i.(string))
 			return entities.Label{
-				ID: uint(k),
+				Model: gorm.Model{
+					ID: uint(k),
+				},
 			}
 		}).ToSlice(&labelEntities)
 
@@ -58,7 +68,7 @@ func (api *TasksApi) List(c *gin.Context) {
 		tx = tx.Where("id IN (?)", tasknumInt)
 	}
 
-	if result := tx.Preload("Label").Find(&taskEntities); result.Error != nil {
+	if result := tx.Where("user_id = ?", userid).Preload("Label").Find(&taskEntities); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
 		context := utils.MakeResponseResultFailed("")
 		c.JSON(http.StatusOK, context)
@@ -93,6 +103,14 @@ func (api *TasksApi) List(c *gin.Context) {
 }
 
 func (api *TasksApi) Create(c *gin.Context) {
+	userid, err := utils.GetUserID(c, api.db)
+	if err != nil {
+		log.Printf("Find user Error: %q", err)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
+		return
+	}
+
 	var req tasks.TaskCreateReq
 
 	if err := c.BindJSON(&req); err != nil {
@@ -125,7 +143,7 @@ func (api *TasksApi) Create(c *gin.Context) {
 		Priority:    utils.JsonNumberPointToIntPoint(req.Priority),
 		State:       utils.JsonNumberPointToIntPoint(req.State),
 		Label:       tasklabels,
-		UserID:      1,
+		UserID:      userid,
 	}
 
 	if result := api.db.Create(&newtask); result.Error != nil {

@@ -24,6 +24,7 @@ func InitRouter() *gin.Engine {
 	authGroup := router.Group("/auth")
 	{
 		authGroup.POST("/login", authApi.Login)
+		authGroup.POST("/googleOAuth", authApi.LoginFromGoogleAuth)
 	}
 
 	apisGroup := router.Group("/apis")

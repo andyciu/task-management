@@ -20,11 +20,16 @@ func NewUserApi(dbInstance *gorm.DB) *UserApi {
 }
 
 func (api *UserApi) GetNickName(c *gin.Context) {
-	var userEntities *entities.User
-	usernamestr, _ := c.Get("username")
-	tx := api.db.Where("Username = ?", usernamestr)
+	userid, err := utils.GetUserID(c, api.db)
+	if err != nil {
+		log.Printf("Find user Error: %q", err)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
+		return
+	}
 
-	if result := tx.Find(&userEntities); result.Error != nil {
+	var userEntities entities.User
+	if result := api.db.Find(&userEntities, userid); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
 		context := utils.MakeResponseResultFailed("")
 		c.JSON(http.StatusOK, context)

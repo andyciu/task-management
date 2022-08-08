@@ -21,8 +21,16 @@ func NewLabelsApi(dbInstance *gorm.DB) *LabelsApi {
 }
 
 func (api *LabelsApi) List(c *gin.Context) {
+	userid, err := utils.GetUserID(c, api.db)
+	if err != nil {
+		log.Printf("Find user Error: %q", err)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
+		return
+	}
+
 	var labelEntities []entities.Label
-	api.db.Find(&labelEntities)
+	api.db.Where("user_id = ?", userid).Find(&labelEntities)
 
 	var result []labels.LabelListRes
 	From(labelEntities).
@@ -43,6 +51,14 @@ func (api *LabelsApi) List(c *gin.Context) {
 }
 
 func (api *LabelsApi) Create(c *gin.Context) {
+	userid, err := utils.GetUserID(c, api.db)
+	if err != nil {
+		log.Printf("Find user Error: %q", err)
+		context := utils.MakeResponseResultFailed("")
+		c.JSON(http.StatusOK, context)
+		return
+	}
+
 	var req labels.LabelCreateReq
 
 	if err := c.BindJSON(&req); err != nil {
@@ -62,7 +78,8 @@ func (api *LabelsApi) Create(c *gin.Context) {
 	}
 
 	newlabel := entities.Label{
-		Name: req.Name,
+		Name:   req.Name,
+		UserID: userid,
 	}
 	if result := api.db.Create(&newlabel); result.Error != nil {
 		log.Printf("Create Error: %q", result.Error)

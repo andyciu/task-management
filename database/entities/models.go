@@ -1,15 +1,21 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Label struct {
-	ID   uint `gorm:"primaryKey"`
-	Name string
-	Task []*Task `gorm:"many2many:task_label_mapping;"`
+	gorm.Model
+	UserID uint
+	Name   string
+	User   User
+	Task   []*Task `gorm:"many2many:task_label_mapping;"`
 }
 
 type Task struct {
-	ID          uint `gorm:"primaryKey"`
+	gorm.Model
 	UserID      uint
 	Title       string
 	Description *string
@@ -22,8 +28,25 @@ type Task struct {
 }
 
 type User struct {
-	ID       uint `gorm:"primaryKey"`
+	gorm.Model
 	Username string
 	Password *string
 	Nickname *string
+	AuthType uint //1-Local,2-GoogleOAuth
+	Tasks    []*Task
+	Labels   []*Label
+}
+
+type Userinfo_Google struct {
+	gorm.Model
+	UserID        uint
+	UID           string
+	Email         string
+	VerifiedEmail bool
+	Name          string
+	GivenName     *string
+	FamilyName    *string
+	Picture       *string
+	Locale        *string
+	User          User
 }
