@@ -68,7 +68,7 @@ func (api *TasksApi) List(c *gin.Context) {
 		tx = tx.Where("id IN (?)", tasknumInt)
 	}
 
-	if result := tx.Where("user_id = ?", userid).Preload("Label").Find(&taskEntities); result.Error != nil {
+	if result := tx.Where("user_id = ?", userid).Preload("Label").Order("id").Find(&taskEntities); result.Error != nil {
 		log.Printf("Find Error: %q", result.Error)
 		context := utils.MakeResponseResultFailed("")
 		c.JSON(http.StatusOK, context)
@@ -76,13 +76,16 @@ func (api *TasksApi) List(c *gin.Context) {
 	}
 
 	var result []tasks.TaskListRes
+	num := 0
 	From(taskEntities).
 		SelectT(func(i entities.Task) tasks.TaskListRes {
 			var labelsnum []int
-			From(i.Label).Select(func(i interface{}) interface{} { return int(i.(*entities.Label).ID) }).ToSlice(&labelsnum)
 
+			From(i.Label).Select(func(i interface{}) interface{} { return int(i.(*entities.Label).ID) }).ToSlice(&labelsnum)
+			num++
 			return tasks.TaskListRes{
 				ID:          int(i.ID),
+				Num:         num,
 				Title:       i.Title,
 				Description: i.Description,
 				StartTime:   i.StartTime,

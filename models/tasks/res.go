@@ -6,6 +6,7 @@ import (
 
 type TaskListRes struct {
 	ID          int        `json:"id"`
+	Num         int        `json:"num"`
 	Title       string     `json:"title"`
 	Description *string    `json:"description"`
 	StartTime   *time.Time `json:"start_time"`

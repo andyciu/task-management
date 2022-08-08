@@ -30,13 +30,16 @@ func (api *LabelsApi) List(c *gin.Context) {
 	}
 
 	var labelEntities []entities.Label
-	api.db.Where("user_id = ?", userid).Find(&labelEntities)
+	api.db.Where("user_id = ?", userid).Order("id").Find(&labelEntities)
 
 	var result []labels.LabelListRes
+	num := 0
 	From(labelEntities).
 		Select(func(i interface{}) interface{} {
+			num++
 			return labels.LabelListRes{
 				ID:   int(i.(entities.Label).ID),
+				Num:  num,
 				Name: i.(entities.Label).Name,
 			}
 		}).ToSlice(&result)
