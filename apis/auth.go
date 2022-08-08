@@ -35,15 +35,15 @@ func (api *AuthApi) Login(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		context := utils.MakeResponseResultFailed("")
+		context := utils.MakeResponseResultFailed("Login Failed. Get data error.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
 
 	var userEntities entities.User
-	if result := api.db.Where("Username = ? AND AuthType = ?", req.Username, authtype.Local).First(&userEntities); result.Error != nil {
+	if result := api.db.Where("Username = ? AND auth_type = ?", req.Username, authtype.Local).First(&userEntities); result.Error != nil {
 		log.Printf("Login Error: %q", result.Error)
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Username or Password not correct.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
@@ -51,14 +51,14 @@ func (api *AuthApi) Login(c *gin.Context) {
 	dk, err := scrypt.Key([]byte(req.Password), []byte(os.Getenv("PASSWORDSALT")), 32768, 8, 1, 32)
 	if err != nil {
 		log.Printf("Login Error: %q", err)
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Username or Password not correct.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
 	if strings.Compare(*userEntities.Password, base64.StdEncoding.EncodeToString(dk)) != 0 {
 		log.Printf("Login Error: Password not equal.")
 		log.Println(base64.StdEncoding.EncodeToString(dk))
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Username or Password not correct.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
@@ -75,7 +75,7 @@ func (api *AuthApi) LoginFromGoogleAuth(c *gin.Context) {
 
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("BindJSON Error: %q", err)
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Get data error.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
@@ -94,7 +94,7 @@ func (api *AuthApi) LoginFromGoogleAuth(c *gin.Context) {
 	token, err := config.Exchange(ctx, req.AuthCode)
 	if err != nil {
 		log.Printf("Exchange Error: %q", err)
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Exchange error.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
@@ -103,7 +103,7 @@ func (api *AuthApi) LoginFromGoogleAuth(c *gin.Context) {
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
 	if err != nil {
 		log.Printf("client.Get Error: %q", err)
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Exchange error.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
@@ -113,7 +113,14 @@ func (api *AuthApi) LoginFromGoogleAuth(c *gin.Context) {
 	var clientres modelsAuth.GoogleAPIUserinfoRes
 	if err := json.NewDecoder(resp.Body).Decode(&clientres); err != nil {
 		log.Printf("json Decoder Error: %q", err)
-		context := utils.MakeResponseResultFailed("Login Failed.")
+		context := utils.MakeResponseResultFailed("Login Failed. Exchange error.")
+		c.JSON(http.StatusOK, context)
+		return
+	}
+
+	if !clientres.VerifiedEmail {
+		log.Printf("clientres.VerifiedEmail false.")
+		context := utils.MakeResponseResultFailed("Login Failed. Not Verified Email.")
 		c.JSON(http.StatusOK, context)
 		return
 	}
@@ -138,7 +145,7 @@ func (api *AuthApi) LoginFromGoogleAuth(c *gin.Context) {
 
 		if resultCreate := api.db.Create(&userinfo_GoogleEntities); resultCreate.Error != nil {
 			log.Printf("Google OAuth login auto Create User Error: %q", err)
-			context := utils.MakeResponseResultFailed("Login Failed.")
+			context := utils.MakeResponseResultFailed("Login Failed. Exchange error.")
 			c.JSON(http.StatusOK, context)
 			return
 		}
