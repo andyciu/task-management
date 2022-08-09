@@ -1,7 +1,7 @@
 module github.com/pc01pc013/task-management
 
-// +heroku goVersion go1.19
-go 1.19
+// +heroku goVersion go1.18
+go 1.18
 
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
