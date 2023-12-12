@@ -7,26 +7,30 @@ Base On https://github.com/heroku/go-getting-started.git
 $ go mod tidy
 $ go mod vendor
 $ go build -o bin/task-management -v .
-$ heroku local
+$ bin/task-management
 ```
 
 ## Environment variables
 |Name|Description|
 |---|---|
 |DATABASE_URL|Database URL|
+|PORT|Port Number|
 |JWTSIGNKEY|JWT sign key string|
 |PASSWORDSALT|password salt string|
+|GOOGLE_OAUTH2_CLIENTID|Google OAuth2 ClientID|
+|GOOGLE_OAUTH2_CLIENTSECRET|Google OAuth2 ClientSecret|
 
 ## APIs
-|||
-|--|--|
-|/labels|/list|
-||/create|
-||/update|
-||/delete|
-|/tasks|/list|
-||/create|
-||/update|
-||/delete|
-|/auth|/login|
-|/user|/getNickName|
+||||
+|--|--|--|
+|/auth|/login||
+||/googleOAuth||
+|/apis|/labels|/list|
+|||/create|
+|||/update|
+|||/delete|
+||/tasks|/list|
+|||/create|
+|||/update|
+|||/delete|
+||/user|/getNickName|
