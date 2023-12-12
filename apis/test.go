@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/pc01pc013/task-management/database/entities"
 	"gorm.io/gorm"
 )
