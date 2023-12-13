@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -13,11 +12,15 @@ import (
 func main() {
 	defer database.Close()
 
-	port := os.Getenv("PORT")
+	// Azure App Service sets the port as an Environment Variable
+	// This can be random, so needs to be loaded at startup
+	port := os.Getenv("HTTP_PLATFORM_PORT")
+
+	// default back to 8080 for local dev
 	if port == "" {
-		log.Fatal("$PORT must be set")
+		port = "8080"
 	}
 
 	router := router.InitRouter()
-	router.Run(":" + port)
+	router.Run("127.0.0.1:" + port)
 }
