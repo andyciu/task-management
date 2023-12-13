@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 
-	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 	"github.com/pc01pc013/task-management/database"
 	"github.com/pc01pc013/task-management/router"
