@@ -48,7 +48,7 @@ func (api *AuthApi) Login(c *gin.Context) {
 		return
 	}
 
-	dk, err := scrypt.Key([]byte(req.Password), []byte(os.Getenv("PASSWORDSALT")), 32768, 8, 1, 32)
+	dk, err := scrypt.Key([]byte(req.Password), []byte(os.Getenv("APPSETTING_PASSWORDSALT")), 32768, 8, 1, 32)
 	if err != nil {
 		log.Printf("Login Error: %q", err)
 		context := utils.MakeResponseResultFailed("Login Failed. Username or Password not correct.")
@@ -83,8 +83,8 @@ func (api *AuthApi) LoginFromGoogleAuth(c *gin.Context) {
 	ctx := context.Background()
 
 	config := &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_OAUTH2_CLIENTID"),
-		ClientSecret: os.Getenv("GOOGLE_OAUTH2_CLIENTSECRET"),
+		ClientID:     os.Getenv("APPSETTING_GOOGLE_OAUTH2_CLIENTID"),
+		ClientSecret: os.Getenv("APPSETTING_GOOGLE_OAUTH2_CLIENTSECRET"),
 		RedirectURL:  "postmessage",
 		Scopes:       []string{"email", "profile"},
 		Endpoint:     google.Endpoint,

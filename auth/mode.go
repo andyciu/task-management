@@ -8,7 +8,7 @@ import (
 
 func SysMode() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		mode := os.Getenv("MODE")
+		mode := os.Getenv("APPSETTING_MODE")
 		if mode == "" {
 			context.Set("sysmode", "nil")
 		}

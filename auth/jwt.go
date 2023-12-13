@@ -58,7 +58,7 @@ func NewToken(username string, authtype uint) (string, error) {
 		},
 	}
 
-	mySigningKey := []byte(os.Getenv("JWTSIGNKEY"))
+	mySigningKey := []byte(os.Getenv("APPSETTING_JWTSIGNKEY"))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(mySigningKey)
@@ -66,6 +66,6 @@ func NewToken(username string, authtype uint) (string, error) {
 
 func ParseToken(tokenstr string) (*jwt.Token, error) {
 	return jwt.ParseWithClaims(tokenstr, &JWTCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWTSIGNKEY")), nil
+		return []byte(os.Getenv("APPSETTING_JWTSIGNKEY")), nil
 	})
 }

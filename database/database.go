@@ -15,7 +15,7 @@ import (
 var gormDB *gorm.DB
 
 func init() {
-	mode := os.Getenv("MODE")
+	mode := os.Getenv("APPSETTING_MODE")
 	gormConfig := &gorm.Config{}
 	if mode == "Test" {
 		gormConfig.Logger = logger.Default.LogMode(logger.Info)
@@ -24,9 +24,9 @@ func init() {
 	var sqlDB *sql.DB
 	var err error
 
-	switch os.Getenv("DATABASE_DRIVER") {
+	switch os.Getenv("APPSETTING_DATABASE_DRIVER") {
 	case "postgres":
-		sqlDB, err = sql.Open(os.Getenv("DATABASE_DRIVER"), os.Getenv("DATABASE_URL"))
+		sqlDB, err = sql.Open(os.Getenv("APPSETTING_DATABASE_DRIVER"), os.Getenv("APPSETTING_DATABASE_URL"))
 		if err != nil {
 			log.Fatalf("Error opening database: %q", err)
 		}
@@ -37,7 +37,7 @@ func init() {
 		}), gormConfig)
 
 	case "sqlserver":
-		gormDB, err = gorm.Open(sqlserver.Open(os.Getenv("DATABASE_URL")), gormConfig)
+		gormDB, err = gorm.Open(sqlserver.Open(os.Getenv("APPSETTING_DATABASE_URL")), gormConfig)
 	default:
 		log.Fatalf("Error DATABASE_DRIVER")
 	}
