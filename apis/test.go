@@ -41,7 +41,7 @@ func (api *TestApi) DbTest(c *gin.Context) {
 }
 
 func (api *TestApi) Repeat(c *gin.Context) {
-	repeat, err := strconv.Atoi(os.Getenv("APPSETTING_REPEAT"))
+	repeat, err := strconv.Atoi(os.Getenv("REPEAT"))
 	if err != nil {
 		log.Printf("Error converting $REPEAT to an int: %q - Using default\n", err)
 		repeat = 5
