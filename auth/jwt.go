@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/pc01pc013/task-management/utils"
 )
 
